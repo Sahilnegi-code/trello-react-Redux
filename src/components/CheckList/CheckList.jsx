@@ -44,7 +44,9 @@ const CheckList = ({ cardId, checkListData, setCheckListData }) => {
         <Error />
       ) : (
         <Box>
-          {loadingCheckList ? (
+          {
+          
+          loadingCheckList ? (
             <Loading />
           ) : (
             <Flex flexDirection={"column"} gap={"30px"}>

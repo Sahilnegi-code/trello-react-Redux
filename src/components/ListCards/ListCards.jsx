@@ -95,8 +95,10 @@ const ListCards = ({ listId }) => {
   return (
     <Box>
       <Flex gap={"10px"} flexDirection={"column"}>
-        {ObjOfListId &&
-        ObjOfListId[listId] &&
+        {ObjOfListId 
+        &&
+        ObjOfListId[listId]
+        &&
         ObjOfListId[listId].errorState ? (
           <Error
             objStyle={{ fontSize: "10px" }}

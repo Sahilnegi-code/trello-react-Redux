@@ -22,29 +22,27 @@ const CheckItem = ({ checkListId, cardId }) => {
   const [toggleAddItem, setToggleAddItem] = useState(false);
   const myApiKey = import.meta.env.VITE_API_KEY;
   const myToken = import.meta.env.VITE_TOKEN;
-  const { checkItemData, checkItemLoading, errorState } = useSelector(
-    (state) => {
-      console.log(state);
-
-      return state.checkItemSlice;
-    }
-  );
+  const objOfCheckItemId = useSelector((state) => {
+    return state.checkItemSlice;
+  });
 
   const dispatch = useDispatch();
 
   const handleCheckboxChange = async (checkItem, state) => {
     try {
-      let tempCheckItemData = checkItemData.map((curr) => {
-        if (curr.id === checkItem) {
-          return {
-            ...curr,
-            state: state === "incomplete" ? "complete" : "incomplete",
-          };
+      let data = objOfCheckItemId[checkListId].checkItemData.map(
+        (curr) => {
+          if (curr.id === checkItem) {
+            return {
+              ...curr,
+              state: state === "incomplete" ? "complete" : "incomplete",
+            };
+          }
+          return curr;
         }
-        return curr;
-      });
+      );
 
-      dispatch(FETCH_CHECKITEMS_SUCCESS(tempCheckItemData));
+      dispatch(FETCH_CHECKITEMS_SUCCESS({ data, checkListId }));
 
       const res = await axios.put(
         `https://api.trello.com/1/cards/${cardId}/checklist/${checkListId}/checkItem/${checkItem}?key=${myApiKey}&token=${myToken}&state=${
@@ -52,7 +50,7 @@ const CheckItem = ({ checkListId, cardId }) => {
         }`
       );
     } catch (err) {
-      dispatch(FETCH_CHECKITEMS_FAILED());
+      dispatch(FETCH_CHECKITEMS_FAILED({checkListId}));
     }
   };
 
@@ -67,10 +65,9 @@ const CheckItem = ({ checkListId, cardId }) => {
       );
 
       const data = res.data;
-
-      dispatch(ADD_ITEM_SUCCESS(data));
+      dispatch(ADD_ITEM_SUCCESS({ data, checkListId }));
     } catch (err) {
-      dispatch(ADD_ITEM_FAILED());
+      dispatch(ADD_ITEM_FAILED({checkListId}));
     }
   }
 
@@ -81,9 +78,11 @@ const CheckItem = ({ checkListId, cardId }) => {
       );
       const data = res.data;
 
-      dispatch(Delete_Item_Success(checkItemId));
+      dispatch(Delete_Item_Success({checkItemId , checkListId}));
+
+
     } catch (err) {
-      dispatch(Delete_Item_Failed());
+      dispatch(Delete_Item_Failed({checkListId}));
     }
   }
 
@@ -94,18 +93,19 @@ const CheckItem = ({ checkListId, cardId }) => {
       );
       const data = res.data;
 
-      dispatch(FETCH_CHECKITEMS_SUCCESS(data));
+      dispatch(FETCH_CHECKITEMS_SUCCESS({ data, checkListId }));
     } catch (err) {
-      dispatch(FETCH_CHECKITEMS_FAILED());
+      dispatch(FETCH_CHECKITEMS_FAILED({checkListId}));
     }
   }
-
   useEffect(() => {
     getAllcheckItems();
   }, []);
   return (
     <>
-      {errorState ? (
+      {objOfCheckItemId &&
+      objOfCheckItemId[checkListId] &&
+      objOfCheckItemId[checkListId].errorState ? (
         <Error
           objStyle={{ fontSize: "10px" }}
           alertStyle={{
@@ -119,10 +119,12 @@ const CheckItem = ({ checkListId, cardId }) => {
           }}
         />
       ) : (
-        checkItemData.map((curr, obj, index) => (
+        objOfCheckItemId &&
+        objOfCheckItemId[checkListId]  &&
+        objOfCheckItemId[checkListId].checkItemData.map((curr, obj, index) => (
           <>
             <Box m={"10px"}>
-              {checkItemLoading ? (
+              {objOfCheckItemId[checkListId].checkItemLoading ? (
                 <Loading />
               ) : (
                 <Flex justifyContent={"space-between"} alignItems={"center"}>
@@ -150,7 +152,7 @@ const CheckItem = ({ checkListId, cardId }) => {
               <Input
                 type="text"
                 onChange={(e) => setCheckItemName(e.target.value)}
-              />
+              />  
               <Flex height={"50px"} alignItems={"center"}>
                 <Button size="xs" type="submit">
                   Add Item

@@ -34,6 +34,7 @@ import {
 
 const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
   const [checkListName, setCheckListName] = useState("");
+  const [toggleCheckList , setToggleCheckList]  = useState(false);
   const  {   checkListData,errorState   } = useSelector(state => state.displayModalSliceModal); 
   const myApiKey = import.meta.env.VITE_API_KEY;
   const myToken = import.meta.env.VITE_TOKEN;
@@ -41,6 +42,7 @@ const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
 
   async function addCheckListInCard(e) {
     e.preventDefault();
+    console.log('sahi;')
     try {
       const res = await axios.post(
         `https://api.trello.com/1/cards/${cardId}/checklists?key=${myApiKey}&token=${myToken}&name=${checkListName}`
@@ -56,6 +58,7 @@ const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
     }
 
   }
+  console.log(toggleCheckList);
   return (
     <>
       {errorState ? (
@@ -69,8 +72,8 @@ const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
                 <Flex justifyContent={"space-between"} alignItems={"center"}>
                   <Text>Add CheckList</Text>
 
-                  <PopoverTrigger>
-                    <Button style={{ textAlign: "center" }}>
+                  <PopoverTrigger  >
+                    <Button onClick={()=>setToggleCheckList(true)} style={{ textAlign: "center" }}>
                       <FontAwesomeIcon
                         style={{ marginRight: "10px" }}
                         icon={faSquareCheck}
@@ -78,6 +81,8 @@ const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
                       Checklist
                     </Button>
                   </PopoverTrigger>
+
+
                 </Flex>
               </ModalHeader>
 
@@ -94,34 +99,48 @@ const DisplayModal = ({ handleCloseModal, isOpen, cardId }) => {
                   checkListData={checkListData}
                 />
 
-                <PopoverContent>
-                  <PopoverArrow />
-                  <PopoverCloseButton />
+{
 
-                  <PopoverBody>
+toggleCheckList
 
-                    <FormControl>
+&& 
 
-                      <form onSubmit={addCheckListInCard}>
-                        <FormLabel>Title</FormLabel>
-                        <Input
-                          onChange={(e) => setCheckListName(e.target.value)}
-                        />
-                        <Button
-         
-                          size={"sm"}
-                          mt={"15px"}
-                          type="submit"
-                          onClose={true}
-                          >
-                          Add
-                        </Button>
-                      </form>
-                    </FormControl>
+(
+<PopoverContent >
+  <PopoverArrow />
 
-                     
-                  </PopoverBody>
-                </PopoverContent>
+  <PopoverBody>
+
+    <FormControl>
+
+      <form onSubmit={addCheckListInCard}>
+        <FormLabel>Title</FormLabel>
+        <Input
+          onChange={(e) => setCheckListName(e.target.value)}
+        />
+
+        <Button
+
+          size={"sm"}
+          mt={"15px"}
+          type="submit"
+          onClose={true}
+          >
+          Add
+        </Button>
+        <Button  size={"sm"} ml={'10px'}
+          mt={"15px"} onClick={()=>setToggleCheckList(false)}
+        > Close </Button>
+      </form>
+    </FormControl>
+
+     
+  </PopoverBody>
+</PopoverContent> 
+)
+
+}
+               
               </ModalBody>
 
               <ModalFooter>
